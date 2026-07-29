@@ -6,127 +6,93 @@
   <title>Family Gaming — Draughts Stratford</title>
   <link href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,300;0,400;0,600;0,700;0,900;1,400&family=Lora:ital@1&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --bg:         #f7f0ea;
-      --blue:       #2a5599;
-      --light-blue: #bfcce0;
-      --mid-blue:   rgba(42,85,153,0.08);
-    }
+    :root { --bg:#f7f0ea; --blue:#2a5599; --light-blue:#bfcce0; --mid-blue:rgba(42,85,153,0.08); }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { background: var(--bg); font-family: 'Raleway', sans-serif; color: #1a1a1a; min-height: 100vh; }
 
-    /* HEADER */
     header { background: var(--blue); padding: 28px 24px 22px; text-align: center; }
     .logo-svg { width: 72px; height: 72px; margin: 0 auto 14px; display: block; }
     .logo-venue { color: white; font-size: 11px; font-weight: 700; letter-spacing: 5px; text-transform: uppercase; }
     .logo-sub { color: var(--light-blue); font-family: 'Lora', serif; font-style: italic; font-size: 14px; margin-top: 4px; }
 
-    /* DIAMOND DIVIDER */
-    .diamond-line {
-      width: 100%; height: 6px;
-      background: repeating-linear-gradient(90deg, var(--light-blue) 0, var(--light-blue) 3px, transparent 3px, transparent 10px);
-      opacity: 0.7;
-    }
+    .diamond-line { width:100%; height:6px; background:repeating-linear-gradient(90deg,var(--light-blue) 0,var(--light-blue) 3px,transparent 3px,transparent 10px); opacity:.7; }
 
-    /* PROGRESS */
-    .progress-wrap { display: flex; align-items: center; justify-content: center; margin-bottom: 32px; }
-    .progress-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--light-blue); transition: background 0.3s; }
-    .progress-dot.done   { background: var(--blue); opacity: 0.4; }
-    .progress-dot.active { background: var(--blue); }
-    .progress-line { width: 34px; height: 1px; background: var(--light-blue); }
+    .progress-wrap { display:flex; align-items:center; justify-content:center; margin-bottom:32px; }
+    .progress-dot { width:10px; height:10px; border-radius:50%; background:var(--light-blue); transition:background .3s; }
+    .progress-dot.done   { background:var(--blue); opacity:.4; }
+    .progress-dot.active { background:var(--blue); }
+    .progress-line { width:44px; height:1px; background:var(--light-blue); }
 
-    /* CONTAINER */
-    .container { max-width: 560px; margin: 0 auto; padding: 36px 24px 80px; }
+    .container { max-width:560px; margin:0 auto; padding:36px 24px 80px; }
 
-    /* STEPS */
-    .step { display: none; }
-    .step.active { display: block; animation: fadeUp 0.3s ease both; }
-    @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .step { display:none; }
+    .step.active { display:block; animation:fadeUp .3s ease both; }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
 
-    /* HEADINGS */
-    .step-title { font-size: 18px; font-weight: 900; letter-spacing: 3px; text-transform: uppercase; color: var(--blue); margin-bottom: 4px; }
-    .step-sub { font-family: 'Lora', serif; font-style: italic; font-size: 13px; color: #888; margin-bottom: 20px; }
+    .step-title { font-size:18px; font-weight:900; letter-spacing:3px; text-transform:uppercase; color:var(--blue); margin-bottom:4px; }
+    .step-sub { font-family:'Lora',serif; font-style:italic; font-size:13px; color:#888; margin-bottom:20px; }
 
-    /* FIELDS */
-    .field { margin-bottom: 14px; }
-    .field label { display: block; font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--blue); margin-bottom: 6px; }
-    .field input { width: 100%; padding: 14px 16px; border: 1.5px solid var(--light-blue); border-radius: 4px; background: white; font-family: 'Raleway', sans-serif; font-size: 15px; color: #1a1a1a; }
-    .field input:focus { outline: none; border-color: var(--blue); }
+    .field { margin-bottom:14px; }
+    .field label { display:block; font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--blue); margin-bottom:6px; }
+    .field input { width:100%; padding:14px 16px; border:1.5px solid var(--light-blue); border-radius:4px; background:white; font-family:'Raleway',sans-serif; font-size:15px; color:#1a1a1a; }
+    .field input:focus { outline:none; border-color:var(--blue); }
 
-    /* GUEST BLOCK */
-    .guest-block { background: white; border: 1px solid var(--light-blue); border-radius: 4px; overflow: hidden; margin-bottom: 16px; }
-    .guest-row { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px; border-bottom: 1px solid #f0ece8; }
-    .guest-row:last-child { border-bottom: none; }
-    .guest-label h3 { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--blue); }
-    .guest-label p { font-family: 'Lora', serif; font-style: italic; font-size: 12px; color: #999; margin-top: 2px; }
-    .guest-price { font-size: 14px; font-weight: 700; color: var(--blue); min-width: 52px; text-align: center; }
-    .guest-price.free { color: #888; }
-    .counter { display: flex; align-items: stretch; border: 1.5px solid var(--blue); border-radius: 4px; overflow: hidden; }
-    .cnt-btn { width: 38px; height: 38px; background: none; border: none; cursor: pointer; font-size: 20px; font-weight: 300; color: var(--blue); transition: background 0.15s; display: flex; align-items: center; justify-content: center; }
-    .cnt-btn:hover:not(:disabled) { background: var(--mid-blue); }
-    .cnt-btn:disabled { opacity: 0.25; cursor: default; }
-    .cnt-val { min-width: 38px; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; color: var(--blue); border-left: 1px solid var(--light-blue); border-right: 1px solid var(--light-blue); padding: 0 8px; }
+    .guest-block { background:white; border:1px solid var(--light-blue); border-radius:4px; overflow:hidden; margin-bottom:16px; }
+    .guest-row { display:flex; align-items:center; justify-content:space-between; padding:18px 20px; border-bottom:1px solid #f0ece8; }
+    .guest-row:last-child { border-bottom:none; }
+    .guest-label h3 { font-size:12px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--blue); }
+    .guest-label p { font-family:'Lora',serif; font-style:italic; font-size:12px; color:#999; margin-top:2px; }
+    .guest-price { font-size:14px; font-weight:700; color:var(--blue); min-width:52px; text-align:center; }
+    .guest-price.free { color:#888; }
+    .counter { display:flex; align-items:stretch; border:1.5px solid var(--blue); border-radius:4px; overflow:hidden; }
+    .cnt-btn { width:38px; height:38px; background:none; border:none; cursor:pointer; font-size:20px; font-weight:300; color:var(--blue); transition:background .15s; display:flex; align-items:center; justify-content:center; }
+    .cnt-btn:hover:not(:disabled) { background:var(--mid-blue); }
+    .cnt-btn:disabled { opacity:.25; cursor:default; }
+    .cnt-val { min-width:38px; display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:700; color:var(--blue); border-left:1px solid var(--light-blue); border-right:1px solid var(--light-blue); padding:0 8px; }
 
-    /* PRICE BAR */
-    .price-bar { background: var(--blue); border-radius: 4px; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
-    .price-bar-label { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--light-blue); }
-    .price-bar-amount { font-size: 26px; font-weight: 900; color: white; }
+    .price-bar { background:var(--blue); border-radius:4px; padding:16px 20px; display:flex; justify-content:space-between; align-items:center; margin-top:4px; }
+    .price-bar-label { font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--light-blue); }
+    .price-bar-amount { font-size:26px; font-weight:900; color:white; }
 
-    /* TIME GRID */
-    .time-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 8px; }
-    .time-slot { padding: 14px 6px; border: 1.5px solid var(--light-blue); border-radius: 4px; background: white; cursor: pointer; text-align: center; font-family: 'Raleway', sans-serif; font-size: 14px; font-weight: 700; color: var(--blue); transition: all 0.15s; }
-    .time-slot:hover { border-color: var(--blue); background: var(--mid-blue); }
-    .time-slot.selected { background: var(--blue); color: white; border-color: var(--blue); }
+    .time-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:8px; }
+    .time-slot { padding:14px 6px; border:1.5px solid var(--light-blue); border-radius:4px; background:white; cursor:pointer; text-align:center; font-family:'Raleway',sans-serif; font-size:14px; font-weight:700; color:var(--blue); transition:all .15s; }
+    .time-slot:hover { border-color:var(--blue); background:var(--mid-blue); }
+    .time-slot.selected { background:var(--blue); color:white; border-color:var(--blue); }
 
-    /* UNTIL SECTION */
-    .until-section { margin-top: 24px; animation: fadeUp 0.3s ease both; }
-    .until-label { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--blue); margin-bottom: 10px; }
-    .until-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-    .until-slot { padding: 12px 4px; border: 1.5px solid var(--light-blue); border-radius: 4px; background: white; cursor: pointer; text-align: center; transition: all 0.15s; }
-    .until-slot:hover { border-color: var(--blue); background: var(--mid-blue); }
-    .until-slot.selected { background: var(--blue); border-color: var(--blue); }
-    .until-slot .u-time { font-size: 14px; font-weight: 700; color: var(--blue); display: block; }
-    .until-slot.selected .u-time { color: white; }
-    .until-slot .u-dur { font-family: 'Lora', serif; font-style: italic; font-size: 11px; color: #999; display: block; margin-top: 2px; }
-    .until-slot.selected .u-dur { color: rgba(255,255,255,0.7); }
+    .until-section { margin-top:24px; animation:fadeUp .3s ease both; }
+    .until-label { font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--blue); margin-bottom:10px; }
+    .until-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+    .until-slot { padding:12px 4px; border:1.5px solid var(--light-blue); border-radius:4px; background:white; cursor:pointer; text-align:center; transition:all .15s; }
+    .until-slot:hover { border-color:var(--blue); background:var(--mid-blue); }
+    .until-slot.selected { background:var(--blue); border-color:var(--blue); }
+    .until-slot .u-time { font-size:14px; font-weight:700; color:var(--blue); display:block; }
+    .until-slot.selected .u-time { color:white; }
+    .until-slot .u-dur { font-family:'Lora',serif; font-style:italic; font-size:11px; color:#999; display:block; margin-top:2px; }
+    .until-slot.selected .u-dur { color:rgba(255,255,255,.7); }
 
-    /* ADMISSIONS BLOCK */
-    .admission-block { background: white; border: 1px solid var(--light-blue); border-radius: 4px; overflow: hidden; margin-bottom: 16px; }
-    .admission-row { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px; border-bottom: 1px solid #f0ece8; }
-    .admission-row:last-child { border-bottom: none; }
-    .admission-label h3 { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--blue); }
-    .admission-label p { font-family: 'Lora', serif; font-style: italic; font-size: 12px; color: #999; margin-top: 2px; }
-    .admission-price { font-size: 14px; font-weight: 700; color: var(--blue); min-width: 52px; text-align: center; }
-    .admission-price.free { color: #888; }
+    .summary-card { background:white; border:1px solid var(--light-blue); border-radius:4px; overflow:hidden; margin-bottom:16px; }
+    .s-row { display:flex; justify-content:space-between; align-items:center; padding:13px 20px; border-bottom:1px solid #f0ece8; font-size:13px; }
+    .s-row:last-child { border-bottom:none; }
+    .s-label { color:#999; font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:.5px; }
+    .s-value { font-weight:700; color:var(--blue); }
 
-    /* SUMMARY CARD */
-    .summary-card { background: white; border: 1px solid var(--light-blue); border-radius: 4px; overflow: hidden; margin-bottom: 16px; }
-    .s-row { display: flex; justify-content: space-between; align-items: center; padding: 13px 20px; border-bottom: 1px solid #f0ece8; font-size: 13px; }
-    .s-row:last-child { border-bottom: none; }
-    .s-label { color: #999; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
-    .s-value { font-weight: 700; color: var(--blue); }
+    .price-section { border-top:2px solid var(--light-blue); padding:16px 20px; background:#faf7f4; }
+    .p-line { display:flex; justify-content:space-between; font-size:13px; color:#555; margin-bottom:8px; }
+    .p-line.total { font-size:15px; font-weight:900; color:var(--blue); padding-top:10px; margin-top:4px; border-top:1px solid var(--light-blue); margin-bottom:0; }
 
-    /* PRICE BREAKDOWN */
-    .price-section { border-top: 2px solid var(--light-blue); padding: 16px 20px; background: #faf7f4; }
-    .p-line { display: flex; justify-content: space-between; font-size: 13px; color: #555; margin-bottom: 8px; }
-    .p-line.total { font-size: 15px; font-weight: 900; color: var(--blue); padding-top: 10px; margin-top: 4px; border-top: 1px solid var(--light-blue); margin-bottom: 0; }
+    .btn { width:100%; padding:16px; background:var(--blue); color:white; border:none; border-radius:4px; font-family:'Raleway',sans-serif; font-size:11px; font-weight:700; letter-spacing:3px; text-transform:uppercase; cursor:pointer; transition:opacity .2s; margin-top:14px; display:block; }
+    .btn:hover:not(:disabled) { opacity:.82; }
+    .btn:disabled { opacity:.35; cursor:default; }
+    .btn-ghost { background:none; color:var(--blue); border:1.5px solid var(--blue); margin-top:8px; }
+    .btn-ghost:hover { background:var(--mid-blue); opacity:1; }
 
-    /* BUTTONS */
-    .btn { width: 100%; padding: 16px; background: var(--blue); color: white; border: none; border-radius: 4px; font-family: 'Raleway', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; cursor: pointer; transition: opacity 0.2s; margin-top: 14px; display: block; }
-    .btn:hover:not(:disabled) { opacity: 0.82; }
-    .btn:disabled { opacity: 0.35; cursor: default; }
-    .btn-ghost { background: none; color: var(--blue); border: 1.5px solid var(--blue); margin-top: 8px; }
-    .btn-ghost:hover { background: var(--mid-blue); opacity: 1; }
+    .loading { text-align:center; padding:36px 0; }
+    .spinner { width:32px; height:32px; border:2.5px solid var(--light-blue); border-top-color:var(--blue); border-radius:50%; animation:spin .75s linear infinite; margin:0 auto 14px; }
+    @keyframes spin { to{transform:rotate(360deg)} }
+    .loading p { font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--blue); }
 
-    /* LOADING */
-    .loading { text-align: center; padding: 36px 0; }
-    .spinner { width: 32px; height: 32px; border: 2.5px solid var(--light-blue); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.75s linear infinite; margin: 0 auto 14px; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .loading p { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--blue); }
-
-    /* NOTICE / ERROR */
-    .notice { background: var(--mid-blue); border-left: 3px solid var(--blue); padding: 12px 16px; font-size: 12px; color: var(--blue); border-radius: 0 4px 4px 0; margin: 14px 0; font-family: 'Lora', serif; font-style: italic; }
-    .error-box { background: #fff0f0; border: 1px solid #ffcccc; border-radius: 4px; padding: 14px 16px; font-size: 13px; color: #c0392b; margin-bottom: 14px; }
+    .notice { background:var(--mid-blue); border-left:3px solid var(--blue); padding:12px 16px; font-size:12px; color:var(--blue); border-radius:0 4px 4px 0; margin:14px 0; font-family:'Lora',serif; font-style:italic; }
+    .error-box { background:#fff0f0; border:1px solid #ffcccc; border-radius:4px; padding:14px 16px; font-size:13px; color:#c0392b; margin-bottom:14px; }
   </style>
 </head>
 <body>
@@ -155,7 +121,6 @@
 <div class="diamond-line"></div>
 
 <div class="container">
-
   <div class="progress-wrap">
     <div class="progress-dot active" id="pd1"></div>
     <div class="progress-line"></div>
@@ -166,8 +131,6 @@
     <div class="progress-dot" id="pd4"></div>
     <div class="progress-line"></div>
     <div class="progress-dot" id="pd5"></div>
-    <div class="progress-line"></div>
-    <div class="progress-dot" id="pd6"></div>
   </div>
 
   <!-- STEP 1: DATE -->
@@ -182,10 +145,10 @@
     <button class="btn" id="dateBtn" disabled onclick="goStep(2)">Continue</button>
   </div>
 
-  <!-- STEP 2: GUESTS -->
+  <!-- STEP 2: GUESTS / ADMISSIONS -->
   <div class="step" id="step2">
     <div class="step-title">Who's coming?</div>
-    <div class="step-sub">Select guests by age — pricing applied automatically</div>
+    <div class="step-sub">Select guests by age — admission prices shown</div>
     <div class="diamond-line" style="margin-bottom:24px"></div>
     <div class="guest-block">
       <div class="guest-row">
@@ -207,7 +170,7 @@
         </div>
       </div>
       <div class="guest-row">
-        <div class="guest-label"><h3>Children</h3><p>Under 12</p></div>
+        <div class="guest-label"><h3>Children</h3><p>Under 12 — free admission</p></div>
         <div class="guest-price free">Free</div>
         <div class="counter">
           <button class="cnt-btn" id="kDown" onclick="adj('kids',-1)" disabled>−</button>
@@ -217,15 +180,15 @@
       </div>
     </div>
     <div class="price-bar">
-      <div class="price-bar-label">Estimated admission</div>
+      <div class="price-bar-label">Admission total</div>
       <div class="price-bar-amount" id="priceBar">£9.95</div>
     </div>
-    <div class="notice">Admission is paid when you complete your booking. Under 12s play free.</div>
+    <div class="notice">Admission is collected with your booking. Under 12s play free.</div>
     <button class="btn" onclick="goStep(3)">Check Availability</button>
     <button class="btn btn-ghost" onclick="goStep(1)">Back</button>
   </div>
 
-  <!-- STEP 3: TIME -->
+  <!-- STEP 3: TIME + UNTIL -->
   <div class="step" id="step3">
     <div class="step-title">Choose a time</div>
     <div class="step-sub" id="step3Sub">Available slots</div>
@@ -247,28 +210,12 @@
     <div class="field"><label>Last name</label><input type="text" id="lName" placeholder="Smith" oninput="chkDetails()"></div>
     <div class="field"><label>Email address</label><input type="email" id="eAddr" placeholder="jane@example.com" oninput="chkDetails()"></div>
     <div class="field"><label>Phone number</label><input type="tel" id="phone" placeholder="+44 7700 900000" oninput="chkDetails()"></div>
-    <button class="btn" id="detailsBtn" disabled onclick="goStep(5)">Select Admissions</button>
+    <button class="btn" id="detailsBtn" disabled onclick="goStep(5)">Review Booking</button>
     <button class="btn btn-ghost" onclick="goStep(3)">Back</button>
   </div>
 
-  <!-- STEP 5: ADMISSIONS -->
+  <!-- STEP 5: REVIEW + BOOK -->
   <div class="step" id="step5">
-    <div class="step-title">Select admissions</div>
-    <div class="step-sub">Pre-filled from your group — adjust if needed</div>
-    <div class="diamond-line" style="margin-bottom:24px"></div>
-    <div class="admission-block" id="admissionsBlock">
-      <!-- Rendered by JS -->
-    </div>
-    <div class="price-bar">
-      <div class="price-bar-label">Admission total</div>
-      <div class="price-bar-amount" id="admissionTotal">£0.00</div>
-    </div>
-    <button class="btn" onclick="goStep(6)">Review Booking</button>
-    <button class="btn btn-ghost" onclick="goStep(4)">Back</button>
-  </div>
-
-  <!-- STEP 6: REVIEW -->
-  <div class="step" id="step6">
     <div class="step-title">Review &amp; Confirm</div>
     <div class="step-sub">Check everything looks right</div>
     <div class="diamond-line" style="margin-bottom:24px"></div>
@@ -283,9 +230,8 @@
     <div class="price-section"><div id="pBreak"></div></div>
     <div id="submitErr"></div>
     <button class="btn" id="submitBtn" onclick="doSubmit()">Book Now &amp; Pay</button>
-    <button class="btn btn-ghost" onclick="goStep(5)">Back</button>
+    <button class="btn btn-ghost" onclick="goStep(4)">Back</button>
   </div>
-
 </div>
 
 <script>
@@ -293,16 +239,15 @@ const VENUE_ID = '67bf4d0ed1dd963cdd235894';
 const TYPE_ID  = '6a69cc733e19f21bdf3b2bf5';
 const PRICE    = { adults: 9.95, teens: 5.00, kids: 0 };
 
-// State
 const S = {
   date: null, adults: 1, teens: 0, kids: 0,
   time: null, until: null, duration: null,
   fn: '', ln: '', email: '', phone: '',
-  admissions: [], // [{id, name, price, qty}]
-  menuItems: null  // fetched from /api/menus
+  menuItems: null,   // raw API response from /api/menus
+  itemIds: {}        // { adults: 'id...', teens: 'id...', kids: 'id...' }
 };
 
-// ─── DATE ───────────────────────────────────────────────
+// ── DATE ──────────────────────────────────────────────────
 (function () {
   const dp = document.getElementById('datePicker');
   const now = new Date(), max = new Date(now);
@@ -318,37 +263,72 @@ const S = {
   });
 })();
 
-// Pre-fetch menus in the background so they're ready when we need them
+// Pre-fetch menus silently so item IDs are ready by the time they submit
 fetchMenus();
 
-// ─── NAV ─────────────────────────────────────────────────
+// ── NAV ───────────────────────────────────────────────────
 function goStep(n) {
   document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
   document.getElementById('step' + n).classList.add('active');
-  for (let i = 1; i <= 6; i++) {
+  for (let i = 1; i <= 5; i++) {
     const d = document.getElementById('pd' + i);
     d.className = 'progress-dot' + (i < n ? ' done' : i === n ? ' active' : '');
   }
   if (n === 3) fetchSlots();
-  if (n === 5) buildAdmissions();
-  if (n === 6) buildReview();
+  if (n === 5) buildReview();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// ─── GUESTS ──────────────────────────────────────────────
+// ── GUESTS ────────────────────────────────────────────────
 function adj(type, delta) {
   const min = type === 'adults' ? 1 : 0;
   S[type] = Math.max(min, S[type] + delta);
-  const map = { adults: ['aVal','aDown'], teens: ['tVal','tDown'], kids: ['kVal','kDown'] };
-  document.getElementById(map[type][0]).textContent = S[type];
-  document.getElementById(map[type][1]).disabled = S[type] <= min;
-  document.getElementById('priceBar').textContent = '£' + calcAdmission().toFixed(2);
-}
-function calcAdmission() {
-  return (S.adults * PRICE.adults) + (S.teens * PRICE.teens);
+  const ids = { adults:['aVal','aDown'], teens:['tVal','tDown'], kids:['kVal','kDown'] };
+  document.getElementById(ids[type][0]).textContent = S[type];
+  document.getElementById(ids[type][1]).disabled = S[type] <= min;
+  document.getElementById('priceBar').textContent =
+    '£' + ((S.adults * PRICE.adults) + (S.teens * PRICE.teens)).toFixed(2);
 }
 
-// ─── TIME SLOTS ──────────────────────────────────────────
+// ── MENUS ─────────────────────────────────────────────────
+async function fetchMenus() {
+  try {
+    const res  = await fetch('/api/menus');
+    const json = await res.json();
+    if (!res.ok) return;
+
+    // Flatten all menus + items into one list
+    const raw  = json.payload || json;
+    const menus = Array.isArray(raw) ? raw
+                : (raw.menus || raw.preorder_menus || [raw]);
+
+    // Find the Gaming Admissions menu (or take the first one)
+    const target = menus.find(m =>
+      (m.name || m.title || '').toLowerCase().includes('gaming')
+    ) || menus[0];
+
+    if (!target) return;
+
+    const items = target.preorder_items || target.items || [];
+
+    // Match items to our three age groups by name
+    for (const item of items) {
+      const n = (item.name || '').toLowerCase();
+      const id = item._id || item.id;
+      if (!id) continue;
+      if (n.includes('adult'))                               S.itemIds.adults = id;
+      else if (n.includes('13') || n.includes('teen'))       S.itemIds.teens  = id;
+      else if (n.includes('kid') || n.includes('free') || n.includes('child')) S.itemIds.kids = id;
+    }
+
+    S.menuItems = items;
+    console.log('[Draughts] Pre-order item IDs resolved:', S.itemIds);
+  } catch (e) {
+    console.warn('[Draughts] Could not fetch pre-order menus:', e.message);
+  }
+}
+
+// ── TIME SLOTS ────────────────────────────────────────────
 async function fetchSlots() {
   S.time = null; S.until = null; S.duration = null;
   document.getElementById('timeBtn').disabled = true;
@@ -360,12 +340,11 @@ async function fetchSlots() {
   document.getElementById('step3Sub').textContent =
     d.toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
 
-  const total = S.adults + S.teens + S.kids;
   try {
     const res  = await fetch('/api/availability', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ type: TYPE_ID, num_people: total, date: S.date }),
+      body: JSON.stringify({ type: TYPE_ID, num_people: S.adults + S.teens + S.kids, date: S.date }),
     });
     const json = await res.json();
     if (res.ok) { renderSlots(json.payload); return; }
@@ -388,12 +367,11 @@ function renderSlots(payload) {
   for (const slot of available) {
     const t = typeof slot === 'string' ? slot
             : (slot.time || slot.value || slot.start || slot.label
-               || (typeof slot === 'object'
-                   ? Object.values(slot).find(v => typeof v === 'string' && /^\d{1,2}:\d{2}/.test(v))
-                   : null) || '');
+               || Object.values(slot).find(v => typeof v === 'string' && /^\d{1,2}:\d{2}/.test(v))
+               || '');
     if (!t) continue;
-    const safeId = t.replace(/[^0-9a-z]/gi, '-');
-    html += `<div class="time-slot" id="ts-${safeId}" onclick="pickTime('${t}')">${t}</div>`;
+    const sid = t.replace(/[^0-9a-z]/gi,'-');
+    html += `<div class="time-slot" id="ts-${sid}" onclick="pickTime('${t}')">${t}</div>`;
   }
   html += '</div>';
   document.getElementById('slotsWrap').innerHTML = html;
@@ -402,31 +380,22 @@ function renderSlots(payload) {
 function pickTime(t) {
   S.time = t; S.until = null; S.duration = null;
   document.querySelectorAll('.time-slot').forEach(el => el.classList.remove('selected'));
-  document.getElementById('ts-' + t.replace(/[^0-9a-z]/gi, '-'))?.classList.add('selected');
-  document.getElementById('timeBtn').disabled = true; // re-require until selection
+  document.getElementById('ts-' + t.replace(/[^0-9a-z]/gi,'-'))?.classList.add('selected');
+  document.getElementById('timeBtn').disabled = true;
   renderUntil(t);
 }
 
 function renderUntil(start) {
-  const [h, m]   = start.split(':').map(Number);
-  const startMin = h * 60 + m;
-  const options  = [
-    { mins: 90,  label: '1½ hrs' },
-    { mins: 120, label: '2 hrs'  },
-    { mins: 150, label: '2½ hrs' },
-    { mins: 180, label: '3 hrs'  },
-  ];
-  let html = `<div class="until-section">
-    <div class="until-label">Until — how long would you like to play?</div>
-    <div class="until-grid">`;
-  for (const opt of options) {
-    const endMin = startMin + opt.mins;
-    const eH = String(Math.floor(endMin / 60) % 24).padStart(2,'0');
-    const eM = String(endMin % 60).padStart(2,'0');
-    const endTime = `${eH}:${eM}`;
-    html += `<div class="until-slot" id="us-${opt.mins}" onclick="pickUntil('${endTime}',${opt.mins})">
-      <span class="u-time">${endTime}</span>
-      <span class="u-dur">${opt.label}</span>
+  const [h,m] = start.split(':').map(Number);
+  const sm = h*60+m;
+  const opts = [{mins:90,label:'1½ hrs'},{mins:120,label:'2 hrs'},{mins:150,label:'2½ hrs'},{mins:180,label:'3 hrs'}];
+  let html = `<div class="until-section"><div class="until-label">Until — how long would you like to play?</div><div class="until-grid">`;
+  for (const o of opts) {
+    const em = sm + o.mins;
+    const et = `${String(Math.floor(em/60)%24).padStart(2,'0')}:${String(em%60).padStart(2,'0')}`;
+    html += `<div class="until-slot" id="us-${o.mins}" onclick="pickUntil('${et}',${o.mins})">
+      <span class="u-time">${et}</span>
+      <span class="u-dur">${o.label}</span>
     </div>`;
   }
   html += '</div></div>';
@@ -442,7 +411,7 @@ function pickUntil(endTime, mins) {
   document.getElementById('timeBtn').disabled = false;
 }
 
-// ─── DETAILS ─────────────────────────────────────────────
+// ── DETAILS ───────────────────────────────────────────────
 function chkDetails() {
   S.fn    = document.getElementById('fName').value.trim();
   S.ln    = document.getElementById('lName').value.trim();
@@ -452,102 +421,7 @@ function chkDetails() {
     !(S.fn && S.ln && S.email.includes('@') && S.phone);
 }
 
-// ─── MENUS ───────────────────────────────────────────────
-async function fetchMenus() {
-  try {
-    const res  = await fetch('/api/menus');
-    const json = await res.json();
-    if (res.ok) S.menuItems = json.payload || json;
-  } catch (_) {}
-}
-
-function resolveAdmissionItems() {
-  // Try to match "Gaming Admissions" items from the API
-  const fallback = [
-    { id: null, name: 'Adult Family Admission',      ageGroup: 'adults', price: 9.95 },
-    { id: null, name: 'Family Admission 13–17 Years', ageGroup: 'teens',  price: 5.00 },
-    { id: null, name: 'Kids Free Admission',          ageGroup: 'kids',   price: 0    },
-  ];
-
-  if (!S.menuItems) return fallback;
-
-  // Flatten all menus → items looking for "Gaming Admissions" menu
-  const menus = Array.isArray(S.menuItems) ? S.menuItems
-              : (S.menuItems.menus || S.menuItems.preorder_menus || []);
-
-  const gamingMenu = menus.find(m =>
-    (m.name || m.title || '').toLowerCase().includes('gaming')
-  ) || menus[0]; // fallback to first menu if name doesn't match
-
-  if (!gamingMenu) return fallback;
-
-  const items = gamingMenu.preorder_items || gamingMenu.items || [];
-
-  // Map API items to our three categories by name matching
-  const mapped = fallback.map(fb => {
-    const found = items.find(i => {
-      const n = (i.name || '').toLowerCase();
-      if (fb.ageGroup === 'adults') return n.includes('adult');
-      if (fb.ageGroup === 'teens')  return n.includes('13') || n.includes('teen');
-      if (fb.ageGroup === 'kids')   return n.includes('kid') || n.includes('free') || n.includes('child');
-      return false;
-    });
-    return found ? { ...fb, id: found._id || found.id, name: found.name } : fb;
-  });
-  return mapped;
-}
-
-// ─── ADMISSIONS STEP ─────────────────────────────────────
-function buildAdmissions() {
-  const items = resolveAdmissionItems();
-  // Initialise quantities from step 2 selections
-  S.admissions = items.map(item => ({
-    ...item,
-    qty: item.ageGroup === 'adults' ? S.adults
-       : item.ageGroup === 'teens'  ? S.teens
-       : S.kids,
-  }));
-  renderAdmissions();
-}
-
-function renderAdmissions() {
-  const block = document.getElementById('admissionsBlock');
-  let html = '';
-  S.admissions.forEach((item, i) => {
-    const priceLabel = item.price === 0 ? 'Free' : `£${item.price.toFixed(2)}`;
-    const minQty = item.ageGroup === 'adults' ? 1 : 0;
-    html += `
-    <div class="admission-row">
-      <div class="admission-label">
-        <h3>${item.name}</h3>
-        <p>${item.ageGroup === 'adults' ? '18 and over' : item.ageGroup === 'teens' ? 'Ages 13–17' : 'Under 12'}</p>
-      </div>
-      <div class="admission-price${item.price === 0 ? ' free' : ''}">${priceLabel}</div>
-      <div class="counter">
-        <button class="cnt-btn" id="ad${i}down" onclick="adjAdmission(${i},-1)" ${item.qty <= minQty ? 'disabled' : ''}>−</button>
-        <div class="cnt-val" id="ad${i}val">${item.qty}</div>
-        <button class="cnt-btn" onclick="adjAdmission(${i},1)">+</button>
-      </div>
-    </div>`;
-  });
-  block.innerHTML = html;
-  updateAdmissionTotal();
-}
-
-function adjAdmission(i, delta) {
-  const minQty = S.admissions[i].ageGroup === 'adults' ? 1 : 0;
-  S.admissions[i].qty = Math.max(minQty, S.admissions[i].qty + delta);
-  document.getElementById(`ad${i}val`).textContent = S.admissions[i].qty;
-  document.getElementById(`ad${i}down`).disabled = S.admissions[i].qty <= minQty;
-  updateAdmissionTotal();
-}
-
-function updateAdmissionTotal() {
-  const total = S.admissions.reduce((sum, item) => sum + item.price * item.qty, 0);
-  document.getElementById('admissionTotal').textContent = '£' + total.toFixed(2);
-}
-
-// ─── REVIEW ──────────────────────────────────────────────
+// ── REVIEW ────────────────────────────────────────────────
 function buildReview() {
   const d = new Date(S.date + 'T12:00:00');
   document.getElementById('sumDate').textContent  =
@@ -555,56 +429,54 @@ function buildReview() {
   document.getElementById('sumTime').textContent  = `${S.time} – ${S.until}`;
   document.getElementById('sumName').textContent  = `${S.fn} ${S.ln}`;
   document.getElementById('sumEmail').textContent = S.email;
+
   const parts = [];
   if (S.adults) parts.push(S.adults + (S.adults===1?' Adult':' Adults'));
   if (S.teens)  parts.push(S.teens  + (S.teens===1?' Teen':' Teens'));
   if (S.kids)   parts.push(S.kids   + (S.kids===1?' Child':' Children') + ' (free)');
   document.getElementById('sumGuests').textContent = parts.join(', ');
 
-  const total = S.admissions.reduce((sum, item) => sum + item.price * item.qty, 0);
+  const total = (S.adults * PRICE.adults) + (S.teens * PRICE.teens);
   let html = '';
-  S.admissions.forEach(item => {
-    if (!item.qty) return;
-    const line = item.price === 0
-      ? `<div class="p-line"><span>${item.qty} × ${item.name}</span><span>Free</span></div>`
-      : `<div class="p-line"><span>${item.qty} × ${item.name} (£${item.price.toFixed(2)})</span><span>£${(item.qty * item.price).toFixed(2)}</span></div>`;
-    html += line;
-  });
+  if (S.adults) html += `<div class="p-line"><span>${S.adults} × Adult Family Admission (£${PRICE.adults.toFixed(2)})</span><span>£${(S.adults*PRICE.adults).toFixed(2)}</span></div>`;
+  if (S.teens)  html += `<div class="p-line"><span>${S.teens} × Family Admission 13–17 (£${PRICE.teens.toFixed(2)})</span><span>£${(S.teens*PRICE.teens).toFixed(2)}</span></div>`;
+  if (S.kids)   html += `<div class="p-line"><span>${S.kids} × Kids Free Admission</span><span>Free</span></div>`;
   html += `<div class="p-line total"><span>Admission total</span><span>£${total.toFixed(2)}</span></div>`;
   document.getElementById('pBreak').innerHTML = html;
 }
 
-// ─── SUBMIT ──────────────────────────────────────────────
+// ── SUBMIT ────────────────────────────────────────────────
 async function doSubmit() {
   const btn = document.getElementById('submitBtn');
   btn.disabled = true; btn.textContent = 'Processing…';
   document.getElementById('submitErr').innerHTML = '';
 
-  const total = S.admissions.reduce((sum, a) => sum + a.qty, 0);
+  // Build pre-orders from the item IDs resolved from the menus API
+  // Including these tells Collins the pre-orders are already done → skip to payment
+  const preorders = [];
+  if (S.adults > 0 && S.itemIds.adults) preorders.push({ preorder_item: S.itemIds.adults, quantity: S.adults });
+  if (S.teens  > 0 && S.itemIds.teens)  preorders.push({ preorder_item: S.itemIds.teens,  quantity: S.teens  });
+  if (S.kids   > 0 && S.itemIds.kids)   preorders.push({ preorder_item: S.itemIds.kids,   quantity: S.kids   });
 
-  // Build pre-orders array — only include if we have real IDs from the API
-  const preorders = S.admissions
-    .filter(a => a.qty > 0 && a.id)
-    .map(a => ({ preorder_item: a.id, quantity: a.qty }));
-
-  const noteParts = S.admissions
-    .filter(a => a.qty > 0)
-    .map(a => `${a.qty}× ${a.name}`)
-    .join(', ');
+  const totalGuests = S.adults + S.teens + S.kids;
 
   const body = {
-    source: 'partner',
-    venue_id: VENUE_ID,
-    type: TYPE_ID,
-    date: S.date,
-    time: S.time,
-    duration: S.duration,
-    num_people: total,
+    source:     'partner',
+    venue_id:   VENUE_ID,
+    type:       TYPE_ID,
+    date:       S.date,
+    time:       S.time,
+    duration:   S.duration,
+    num_people: totalGuests,
     first_name: S.fn,
     last_name:  S.ln,
     email:      S.email,
     phone:      S.phone,
-    notes:      `Family booking — ${noteParts}`,
+    notes: [
+      S.adults ? `${S.adults}× Adult (£${(S.adults*PRICE.adults).toFixed(2)})` : null,
+      S.teens  ? `${S.teens}× Teen 13–17 (£${(S.teens*PRICE.teens).toFixed(2)})` : null,
+      S.kids   ? `${S.kids}× Under 12 (free)` : null,
+    ].filter(Boolean).join(', '),
     ...(preorders.length ? { preorders } : {}),
   };
 
@@ -615,31 +487,36 @@ async function doSubmit() {
       body: JSON.stringify(body),
     });
     const json = await res.json();
-    if (res.ok && json.payload?.booking) {
-      window.location.href = json.payload?.next?.web || buildCollinsUrl();
+
+    if (res.ok && (json.payload?.booking || json.payload?._id)) {
+      // next.web should now point to payment (not pre-orders) since we submitted them
+      const nextUrl = json.payload?.next?.web;
+      window.location.href = nextUrl || buildCollinsUrl();
       return;
     }
-    throw new Error(json.error || JSON.stringify(json.payload?.errors || 'Booking failed'));
+
+    // Surface the actual API error
+    const errMsg = json.payload?.errors?.map(e => e.message).join(', ')
+                || json.error
+                || JSON.stringify(json.payload || json);
+    throw new Error(errMsg);
+
   } catch (err) {
     document.getElementById('submitErr').innerHTML =
-      `<div class="error-box">${err.message}</div>`;
-    btn.disabled = false; btn.textContent = 'Book Now & Pay';
+      `<div class="error-box">Booking failed: ${err.message}</div>`;
+    btn.disabled = false;
+    btn.textContent = 'Book Now & Pay';
   }
 }
 
+// Fallback if API call fails entirely
 function buildCollinsUrl() {
-  const total = S.admissions.reduce((sum, a) => sum + a.qty, 0);
   return `https://bookings.designmynight.com/book?widget_version=2`
-    + `&venue_id=${VENUE_ID}`
-    + `&type=${TYPE_ID}`
-    + `&num_people=${total}`
-    + `&date=${S.date}`
-    + `&time=${encodeURIComponent(S.time)}`
-    + `&duration=${S.duration}`
-    + `&first_name=${encodeURIComponent(S.fn)}`
-    + `&last_name=${encodeURIComponent(S.ln)}`
-    + `&email=${encodeURIComponent(S.email)}`
-    + `&phone=${encodeURIComponent(S.phone)}`;
+    + `&venue_id=${VENUE_ID}&type=${TYPE_ID}`
+    + `&num_people=${S.adults+S.teens+S.kids}`
+    + `&date=${S.date}&time=${encodeURIComponent(S.time)}&duration=${S.duration}`
+    + `&first_name=${encodeURIComponent(S.fn)}&last_name=${encodeURIComponent(S.ln)}`
+    + `&email=${encodeURIComponent(S.email)}&phone=${encodeURIComponent(S.phone)}`;
 }
 </script>
 </body>
