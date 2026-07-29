@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Family Gaming — Draughts Stratford</title>
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,300;0,400;0,600;0,700;0,900;1,400&family=Lora:ital@1&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:         #f7f0ea;
+      --blue:       #2a5599;
+      --light-blue: #bfcce0;
+      --mid-blue:   rgba(42,85,153,0.08);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); font-family: 'Raleway', sans-serif; color: #1a1a1a; min-height: 100vh; }
+
+    /* HEADER */
+    header { background: var(--blue); padding: 28px 24px 22px; text-align: center; }
+    .logo-svg { width: 72px; height: 72px; margin: 0 auto 14px; display: block; }
+    .logo-venue { color: white; font-size: 11px; font-weight: 700; letter-spacing: 5px; text-transform: uppercase; }
+    .logo-sub { color: var(--light-blue); font-family: 'Lora', serif; font-style: italic; font-size: 14px; margin-top: 4px; }
+
+    /* DIAMOND DIVIDER */
+    .diamond-line {
+      width: 100%; height: 6px;
+      background: repeating-linear-gradient(90deg, var(--light-blue) 0, var(--light-blue) 3px, transparent 3px, transparent 10px);
+      opacity: 0.7;
+    }
+
+    /* PROGRESS */
+    .progress-wrap { display: flex; align-items: center; justify-content: center; margin-bottom: 32px; }
+    .progress-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--light-blue); transition: background 0.3s; }
+    .progress-dot.done   { background: var(--blue); opacity: 0.4; }
+    .progress-dot.active { background: var(--blue); }
+    .progress-line { width: 44px; height: 1px; background: var(--light-blue); }
+
+    /* CONTAINER */
+    .container { max-width: 560px; margin: 0 auto; padding: 36px 24px 80px; }
+
+    /* STEPS */
+    .step { display: none; }
+    .step.active { display: block; animation: fadeUp 0.3s ease both; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* HEADINGS */
+    .step-title { font-size: 18px; font-weight: 900; letter-spacing: 3px; text-transform: uppercase; color: var(--blue); margin-bottom: 4px; }
+    .step-sub { font-family: 'Lora', serif; font-style: italic; font-size: 13px; color: #888; margin-bottom: 20px; }
+
+    /* FIELDS */
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--blue); margin-bottom: 6px; }
+    .field input { width: 100%; padding: 14px 16px; border: 1.5px solid var(--light-blue); border-radius: 4px; background: white; font-family: 'Raleway', sans-serif; font-size: 15px; color: #1a1a1a; }
+    .field input:focus { outline: none; border-color: var(--blue); }
+
+    /* GUEST BLOCK */
+    .guest-block { background: white; border: 1px solid var(--light-blue); border-radius: 4px; overflow: hidden; margin-bottom: 16px; }
+    .guest-row { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px; border-bottom: 1px solid #f0ece8; }
+    .guest-row:last-child { border-bottom: none; }
+    .guest-label h3 { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--blue); }
+    .guest-label p { font-family: 'Lora', serif; font-style: italic; font-size: 12px; color: #999; margin-top: 2px; }
+    .guest-price { font-size: 14px; font-weight: 700; color: var(--blue); min-width: 52px; text-align: center; }
+    .guest-price.free { color: #888; }
+    .counter { display: flex; align-items: stretch; border: 1.5px solid var(--blue); border-radius: 4px; overflow: hidden; }
+    .cnt-btn { width: 38px; height: 38px; background: none; border: none; cursor: pointer; font-size: 20px; font-weight: 300; color: var(--blue); transition: background 0.15s; display: flex; align-items: center; justify-content: center; }
+    .cnt-btn:hover:not(:disabled) { background: var(--mid-blue); }
+    .cnt-btn:disabled { opacity: 0.25; cursor: default; }
+    .cnt-val { min-width: 38px; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; color: var(--blue); border-left: 1px solid var(--light-blue); border-right: 1px solid var(--light-blue); padding: 0 8px; }
+
+    /* PRICE BAR */
+    .price-bar { background: var(--blue); border-radius: 4px; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+    .price-bar-label { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--light-blue); }
+    .price-bar-amount { font-size: 26px; font-weight: 900; color: white; }
+
+    /* TIME GRID */
+    .time-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 8px; }
+    .time-slot { padding: 14px 6px; border: 1.5px solid var(--light-blue); border-radius: 4px; background: white; cursor: pointer; text-align: center; font-family: 'Raleway', sans-serif; font-size: 14px; font-weight: 700; color: var(--blue); transition: all 0.15s; }
+    .time-slot:hover { border-color: var(--blue); background: var(--mid-blue); }
+    .time-slot.selected { background: var(--blue); color: white; border-color: var(--blue); }
+
+    /* SUMMARY CARD */
+    .summary-card { background: white; border: 1px solid var(--light-blue); border-radius: 4px; overflow: hidden; margin-bottom: 16px; }
+    .s-row { display: flex; justify-content: space-between; align-items: center; padding: 13px 20px; border-bottom: 1px solid #f0ece8; font-size: 13px; }
+    .s-row:last-child { border-bottom: none; }
+    .s-label { color: #999; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .s-value { font-weight: 700; color: var(--blue); }
+
+    /* PRICE BREAKDOWN */
+    .price-section { border-top: 2px solid var(--light-blue); padding: 16px 20px; background: #faf7f4; }
+    .p-line { display: flex; justify-content: space-between; font-size: 13px; color: #555; margin-bottom: 8px; }
+    .p-line.total { font-size: 15px; font-weight: 900; color: var(--blue); padding-top: 10px; margin-top: 4px; border-top: 1px solid var(--light-blue); margin-bottom: 0; }
+
+    /* BUTTONS */
+    .btn { width: 100%; padding: 16px; background: var(--blue); color: white; border: none; border-radius: 4px; font-family: 'Raleway', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; cursor: pointer; transition: opacity 0.2s; margin-top: 14px; display: block; }
+    .btn:hover:not(:disabled) { opacity: 0.82; }
+    .btn:disabled { opacity: 0.35; cursor: default; }
+    .btn-ghost { background: none; color: var(--blue); border: 1.5px solid var(--blue); margin-top: 8px; }
+    .btn-ghost:hover { background: var(--mid-blue); opacity: 1; }
+
+    /* LOADING */
+    .loading { text-align: center; padding: 36px 0; }
+    .spinner { width: 32px; height: 32px; border: 2.5px solid var(--light-blue); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.75s linear infinite; margin: 0 auto 14px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading p { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--blue); }
+
+    /* NOTICE / ERROR */
+    .notice { background: var(--mid-blue); border-left: 3px solid var(--blue); padding: 12px 16px; font-size: 12px; color: var(--blue); border-radius: 0 4px 4px 0; margin: 14px 0; font-family: 'Lora', serif; font-style: italic; }
+    .error-box { background: #fff0f0; border: 1px solid #ffcccc; border-radius: 4px; padding: 14px 16px; font-size: 13px; color: #c0392b; margin-bottom: 14px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <svg class="logo-svg" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="36" cy="36" r="34" stroke="white" stroke-width="1.5"/>
+    <circle cx="36" cy="36" r="22" stroke="white" stroke-width="1"/>
+    <ellipse cx="36" cy="41" rx="13" ry="5" stroke="white" stroke-width="1.2"/>
+    <ellipse cx="36" cy="37" rx="13" ry="5" stroke="white" stroke-width="1.2"/>
+    <ellipse cx="36" cy="33" rx="13" ry="5" stroke="white" stroke-width="1.2"/>
+    <path d="M6 30 Q10 26 14 30 Q18 34 22 30" stroke="white" stroke-width="1" fill="none" opacity="0.6"/>
+    <path d="M6 36 Q10 32 14 36 Q18 40 22 36" stroke="white" stroke-width="1" fill="none" opacity="0.6"/>
+    <path d="M50 30 Q54 26 58 30 Q62 34 66 30" stroke="white" stroke-width="1" fill="none" opacity="0.6"/>
+    <path d="M50 36 Q54 32 58 36 Q62 40 66 36" stroke="white" stroke-width="1" fill="none" opacity="0.6"/>
+    <circle cx="24" cy="10" r="1.2" fill="white" opacity="0.8"/>
+    <circle cx="30" cy="7"  r="1.2" fill="white" opacity="0.8"/>
+    <circle cx="36" cy="6"  r="1.2" fill="white" opacity="0.8"/>
+    <circle cx="42" cy="7"  r="1.2" fill="white" opacity="0.8"/>
+    <circle cx="48" cy="10" r="1.2" fill="white" opacity="0.8"/>
+  </svg>
+  <div class="logo-venue">Draughts · Stratford</div>
+  <div class="logo-sub">Family Gaming — Book Your Visit</div>
+</header>
+
+<div class="diamond-line"></div>
+
+<div class="container">
+
+  <div class="progress-wrap">
+    <div class="progress-dot active" id="pd1"></div>
+    <div class="progress-line"></div>
+    <div class="progress-dot" id="pd2"></div>
+    <div class="progress-line"></div>
+    <div class="progress-dot" id="pd3"></div>
+    <div class="progress-line"></div>
+    <div class="progress-dot" id="pd4"></div>
+    <div class="progress-line"></div>
+    <div class="progress-dot" id="pd5"></div>
+  </div>
+
+  <!-- STEP 1: DATE -->
+  <div class="step active" id="step1">
+    <div class="step-title">When are you visiting?</div>
+    <div class="step-sub">Choose your preferred date</div>
+    <div class="diamond-line" style="margin-bottom:24px"></div>
+    <div class="field">
+      <label>Date</label>
+      <input type="date" id="datePicker">
+    </div>
+    <button class="btn" id="dateBtn" disabled onclick="goStep(2)">Continue</button>
+  </div>
+
+  <!-- STEP 2: GUESTS -->
+  <div class="step" id="step2">
+    <div class="step-title">Who's coming?</div>
+    <div class="step-sub">Select guests by age — pricing applied automatically</div>
+    <div class="diamond-line" style="margin-bottom:24px"></div>
+    <div class="guest-block">
+      <div class="guest-row">
+        <div class="guest-label"><h3>Adults</h3><p>18 and over</p></div>
+        <div class="guest-price">£9.95</div>
+        <div class="counter">
+          <button class="cnt-btn" id="aDown" onclick="adj('adults',-1)" disabled>−</button>
+          <div class="cnt-val" id="aVal">1</div>
+          <button class="cnt-btn" onclick="adj('adults',1)">+</button>
+        </div>
+      </div>
+      <div class="guest-row">
+        <div class="guest-label"><h3>Teens</h3><p>Ages 13–17</p></div>
+        <div class="guest-price">£5.00</div>
+        <div class="counter">
+          <button class="cnt-btn" id="tDown" onclick="adj('teens',-1)" disabled>−</button>
+          <div class="cnt-val" id="tVal">0</div>
+          <button class="cnt-btn" onclick="adj('teens',1)">+</button>
+        </div>
+      </div>
+      <div class="guest-row">
+        <div class="guest-label"><h3>Children</h3><p>Under 12</p></div>
+        <div class="guest-price free">Free</div>
+        <div class="counter">
+          <button class="cnt-btn" id="kDown" onclick="adj('kids',-1)" disabled>−</button>
+          <div class="cnt-val" id="kVal">0</div>
+          <button class="cnt-btn" onclick="adj('kids',1)">+</button>
+        </div>
+      </div>
+    </div>
+    <div class="price-bar">
+      <div class="price-bar-label">Estimated total</div>
+      <div class="price-bar-amount" id="priceBar">£9.95</div>
+    </div>
+    <div class="notice">Admission is paid when you complete your booking. Under 12s play free.</div>
+    <button class="btn" onclick="goStep(3)">Check Availability</button>
+    <button class="btn btn-ghost" onclick="goStep(1)">Back</button>
+  </div>
+
+  <!-- STEP 3: TIME -->
+  <div class="step" id="step3">
+    <div class="step-title">Choose a time</div>
+    <div class="step-sub" id="step3Sub">Available slots</div>
+    <div class="diamond-line" style="margin-bottom:24px"></div>
+    <div id="slotsWrap">
+      <div class="loading"><div class="spinner"></div><p>Checking availability…</p></div>
+    </div>
+    <button class="btn" id="timeBtn" disabled onclick="goStep(4)">Continue</button>
+    <button class="btn btn-ghost" onclick="goStep(2)">Back</button>
+  </div>
+
+  <!-- STEP 4: DETAILS -->
+  <div class="step" id="step4">
+    <div class="step-title">Your details</div>
+    <div class="step-sub">We'll send your confirmation here</div>
+    <div class="diamond-line" style="margin-bottom:24px"></div>
+    <div class="field"><label>First name</label><input type="text" id="fName" placeholder="Jane" oninput="chkDetails()"></div>
+    <div class="field"><label>Last name</label><input type="text" id="lName" placeholder="Smith" oninput="chkDetails()"></div>
+    <div class="field"><label>Email address</label><input type="email" id="eAddr" placeholder="jane@example.com" oninput="chkDetails()"></div>
+    <div class="field"><label>Phone number</label><input type="tel" id="phone" placeholder="+44 7700 900000" oninput="chkDetails()"></div>
+    <button class="btn" id="detailsBtn" disabled onclick="goStep(5)">Review Booking</button>
+    <button class="btn btn-ghost" onclick="goStep(3)">Back</button>
+  </div>
+
+  <!-- STEP 5: REVIEW -->
+  <div class="step" id="step5">
+    <div class="step-title">Review &amp; Confirm</div>
+    <div class="step-sub">Check everything looks right</div>
+    <div class="diamond-line" style="margin-bottom:24px"></div>
+    <div class="summary-card">
+      <div class="s-row"><span class="s-label">Venue</span><span class="s-value">Draughts Stratford</span></div>
+      <div class="s-row"><span class="s-label">Date</span><span class="s-value" id="sumDate">—</span></div>
+      <div class="s-row"><span class="s-label">Time</span><span class="s-value" id="sumTime">—</span></div>
+      <div class="s-row"><span class="s-label">Guests</span><span class="s-value" id="sumGuests">—</span></div>
+      <div class="s-row"><span class="s-label">Name</span><span class="s-value" id="sumName">—</span></div>
+      <div class="s-row"><span class="s-label">Email</span><span class="s-value" id="sumEmail">—</span></div>
+    </div>
+    <div class="price-section"><div id="pBreak"></div></div>
+    <div id="submitErr"></div>
+    <button class="btn" id="submitBtn" onclick="doSubmit()">Book Now — Select Admissions &amp; Pay</button>
+    <button class="btn btn-ghost" onclick="goStep(4)">Back</button>
+  </div>
+
+</div>
+
+<script>
+const VENUE_ID = '67bf4d0ed1dd963cdd235894';
+const TYPE_ID  = '6a69cc733e19f21bdf3b2bf5';
+const PRICE    = { adults: 9.95, teens: 5.00, kids: 0 };
+const S        = { date: null, adults: 1, teens: 0, kids: 0, time: null, fn: '', ln: '', email: '', phone: '' };
+
+// DATE SETUP
+(function () {
+  const dp = document.getElementById('datePicker');
+  const now = new Date(), max = new Date(now);
+  max.setMonth(max.getMonth() + 3);
+  dp.min = now.toISOString().slice(0,10);
+  dp.max = max.toISOString().slice(0,10);
+  dp.value = now.toISOString().slice(0,10);
+  S.date = dp.value;
+  document.getElementById('dateBtn').disabled = false;
+  dp.addEventListener('change', () => { S.date = dp.value || null; document.getElementById('dateBtn').disabled = !S.date; });
+})();
+
+// NAVIGATION
+function goStep(n) {
+  document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
+  document.getElementById('step' + n).classList.add('active');
+  for (let i = 1; i <= 5; i++) {
+    const d = document.getElementById('pd' + i);
+    d.className = 'progress-dot' + (i < n ? ' done' : i === n ? ' active' : '');
+  }
+  if (n === 3) fetchSlots();
+  if (n === 5) buildReview();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// GUESTS
+function adj(type, delta) {
+  const min = type === 'adults' ? 1 : 0;
+  S[type] = Math.max(min, S[type] + delta);
+  const map = { adults: ['aVal','aDown'], teens: ['tVal','tDown'], kids: ['kVal','kDown'] };
+  document.getElementById(map[type][0]).textContent = S[type];
+  document.getElementById(map[type][1]).disabled = S[type] <= min;
+  const t = (S.adults * PRICE.adults) + (S.teens * PRICE.teens);
+  document.getElementById('priceBar').textContent = '£' + t.toFixed(2);
+}
+
+// FETCH TIME SLOTS — calls our own /api/availability proxy (server-side, no CORS issues)
+async function fetchSlots() {
+  S.time = null;
+  document.getElementById('timeBtn').disabled = true;
+  document.getElementById('slotsWrap').innerHTML = '<div class="loading"><div class="spinner"></div><p>Checking availability…</p></div>';
+
+  const d = new Date(S.date + 'T12:00:00');
+  document.getElementById('step3Sub').textContent = d.toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+
+  const total = S.adults + S.teens + S.kids;
+
+  try {
+    const res = await fetch('/api/availability', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: TYPE_ID, num_people: total, date: S.date }),
+    });
+    const json = await res.json();
+    if (res.ok) { renderSlots(json.payload); return; }
+    throw new Error(json.error || 'API error');
+  } catch (err) {
+    document.getElementById('slotsWrap').innerHTML = `<div class="error-box">Could not load availability: ${err.message}</div>`;
+  }
+}
+
+function renderSlots(payload) {
+  const suggested = payload?.validation?.time?.suggestedValues || [];
+  const available = suggested.filter(s => s.valid !== false);
+  if (!available.length) {
+    document.getElementById('slotsWrap').innerHTML = '<p style="text-align:center;color:#999;padding:28px 0;font-style:italic">No availability on this date — please try another day.</p>';
+    return;
+  }
+  let html = '<div class="time-grid">';
+  for (const slot of available) {
+    const t = typeof slot.value === 'string' ? slot.value : (slot.value?.time || String(slot.value));
+    html += `<div class="time-slot" id="ts-${t.replace(':','-')}" onclick="pickTime('${t}')">${t}</div>`;
+  }
+  html += '</div>';
+  document.getElementById('slotsWrap').innerHTML = html;
+}
+
+function pickTime(t) {
+  S.time = t;
+  document.querySelectorAll('.time-slot').forEach(el => el.classList.remove('selected'));
+  document.getElementById('ts-' + t.replace(':','-'))?.classList.add('selected');
+  document.getElementById('timeBtn').disabled = false;
+}
+
+// DETAILS
+function chkDetails() {
+  S.fn    = document.getElementById('fName').value.trim();
+  S.ln    = document.getElementById('lName').value.trim();
+  S.email = document.getElementById('eAddr').value.trim();
+  S.phone = document.getElementById('phone').value.trim();
+  document.getElementById('detailsBtn').disabled = !(S.fn && S.ln && S.email.includes('@') && S.phone);
+}
+
+// REVIEW
+function buildReview() {
+  const d = new Date(S.date + 'T12:00:00');
+  document.getElementById('sumDate').textContent  = d.toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+  document.getElementById('sumTime').textContent  = S.time;
+  document.getElementById('sumName').textContent  = S.fn + ' ' + S.ln;
+  document.getElementById('sumEmail').textContent = S.email;
+  const parts = [];
+  if (S.adults) parts.push(S.adults + (S.adults===1?' Adult':' Adults'));
+  if (S.teens)  parts.push(S.teens  + (S.teens===1?' Teen':' Teens'));
+  if (S.kids)   parts.push(S.kids   + (S.kids===1?' Child':' Children') + ' (free)');
+  document.getElementById('sumGuests').textContent = parts.join(', ');
+  const total = (S.adults * PRICE.adults) + (S.teens * PRICE.teens);
+  let html = '';
+  if (S.adults) html += `<div class="p-line"><span>${S.adults} × Adult (£${PRICE.adults.toFixed(2)})</span><span>£${(S.adults*PRICE.adults).toFixed(2)}</span></div>`;
+  if (S.teens)  html += `<div class="p-line"><span>${S.teens} × Teen (£${PRICE.teens.toFixed(2)})</span><span>£${(S.teens*PRICE.teens).toFixed(2)}</span></div>`;
+  if (S.kids)   html += `<div class="p-line"><span>${S.kids} × Under 12</span><span>Free</span></div>`;
+  html += `<div class="p-line total"><span>Total admission</span><span>£${total.toFixed(2)}</span></div>`;
+  document.getElementById('pBreak').innerHTML = html;
+}
+
+// SUBMIT — tries API, falls back to widget redirect
+async function doSubmit() {
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true; btn.textContent = 'Processing…';
+  document.getElementById('submitErr').innerHTML = '';
+
+  const total = S.adults + S.teens + S.kids;
+  const noteParts = [
+    S.adults + ' adult' + (S.adults>1?'s':'') + ' (£' + (S.adults*PRICE.adults).toFixed(2) + ')',
+    S.teens ? S.teens + ' teen' + (S.teens>1?'s':'') + ' 13–17 (£' + (S.teens*PRICE.teens).toFixed(2) + ')' : null,
+    S.kids  ? S.kids  + ' child' + (S.kids>1?'ren':'') + ' under 12 (free)' : null
+  ].filter(Boolean).join(', ');
+
+  const body = {
+    source: 'partner', venue_id: VENUE_ID, type: TYPE_ID,
+    date: S.date, time: S.time, num_people: total,
+    first_name: S.fn, last_name: S.ln, email: S.email, phone: S.phone,
+    notes: `Family booking — ${noteParts}`
+  };
+
+  // Submit via our own /api/booking proxy (server-side, no CORS issues)
+  try {
+    const res  = await fetch('/api/booking', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const json = await res.json();
+    if (res.ok && json.payload?.booking) {
+      // Redirect to Collins for pre-orders / payment
+      window.location.href = json.payload?.next?.web || buildCollinsUrl();
+      return;
+    }
+    throw new Error(json.error || 'Booking failed');
+  } catch (err) {
+    // Fallback: pre-fill Collins URL with what we know
+    redirectToCollins();
+  }
+}
+
+function buildCollinsUrl() {
+  const total = S.adults + S.teens + S.kids;
+  return `https://bookings.designmynight.com/book?widget_version=2`
+    + `&venue_id=${VENUE_ID}`
+    + `&type=${TYPE_ID}`
+    + `&num_people=${total}`
+    + `&date=${S.date}`
+    + `&time=${encodeURIComponent(S.time)}`
+    + `&first_name=${encodeURIComponent(S.fn)}`
+    + `&last_name=${encodeURIComponent(S.ln)}`
+    + `&email=${encodeURIComponent(S.email)}`
+    + `&phone=${encodeURIComponent(S.phone)}`;
+}
+
+function redirectToCollins() {
+  window.location.href = buildCollinsUrl();
+}
+</script>
+</body>
+</html>
