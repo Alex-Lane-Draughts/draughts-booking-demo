@@ -325,8 +325,14 @@ function renderSlots(payload) {
   }
   let html = '<div class="time-grid">';
   for (const slot of available) {
-    const t = typeof slot.value === 'string' ? slot.value : (slot.value?.time || String(slot.value));
-    html += `<div class="time-slot" id="ts-${t.replace(':','-')}" onclick="pickTime('${t}')">${t}</div>`;
+    // Handle all common DMN API response shapes
+    const t = typeof slot === 'string' ? slot
+            : (slot.time || slot.value || slot.start || slot.label
+               || (typeof slot === 'object' ? Object.values(slot).find(v => typeof v === 'string' && v.match(/^\d{1,2}:\d{2}/)) : null)
+               || '');
+    if (!t) continue;
+    const safeId = t.replace(/[^0-9a-z]/gi, '-');
+    html += `<div class="time-slot" id="ts-${safeId}" onclick="pickTime('${t}')">${t}</div>`;
   }
   html += '</div>';
   document.getElementById('slotsWrap').innerHTML = html;
