@@ -395,12 +395,58 @@ async function fetchMenus() {
     const json = await res.json();
     if (!res.ok) { console.warn('[Draughts] Menus API error:', json); return; }
 
-    // Log the full raw response so we can see the exact structure
     console.log('[Draughts] Raw menus response:', JSON.stringify(json, null, 2));
 
-    const raw   = json.payload || json;
-    const menus = Array.isArray(raw) ? raw
-                : (raw.menus || raw.preorder_menus || (raw._id ? [raw] : []));
+    // If the new debug endpoint returned, dig into all result paths
+    let menus = [];
+    if (json.debug && json.results) {
+      const R = json.results;
+      // Path 1: bookingType returned menus directly
+      const bt = R.bookingType?.data;
+      const btMenus = bt?.payload?.preorder_menus
+                   || bt?.payload?.booking_type?.preorder_menus
+                   || [];
+      // Path 2: bookingTypeMenus
+      const btm = R.bookingTypeMenus?.data;
+      const btmMenus = btm?.payload?.preorder_menus
+                    || (Array.isArray(btm?.payload) ? btm.payload : [])
+                    || [];
+      // Path 3: venueMenus
+      const vm = R.venueMenus?.data;
+      const vmMenus = vm?.payload?.preorder_menus
+                   || (Array.isArray(vm?.payload) ? vm.payload : [])
+                   || [];
+      // Path 4: venue.preorder_menus and booking types
+      const venuePM = R.venue?.preorder_menus || [];
+      const venueBTMenus = (R.venue?.booking_types_summary || [])
+        .filter(bt => bt._id === '6a69cc733e19f21bdf3b2bf5')
+        .flatMap(bt => bt.preorder_menus || []);
+
+      console.log('[Draughts] Paths found:', {
+        btMenus: btMenus.length,
+        btmMenus: btmMenus.length,
+        vmMenus: vmMenus.length,
+        venuePM: venuePM.length,
+        venueBTMenus: venueBTMenus.length,
+      });
+
+      menus = [...btMenus, ...btmMenus, ...vmMenus, ...venuePM, ...venueBTMenus];
+      // Deduplicate by _id
+      const seen = new Set();
+      menus = menus.filter(m => {
+        const id = m._id || m.id;
+        if (seen.has(id)) return false;
+        seen.add(id);
+        return true;
+      });
+    } else {
+      // Legacy path
+      const raw = json.payload || json;
+      menus = Array.isArray(raw) ? raw
+            : (raw.menus || raw.preorder_menus
+              || raw.venue?.preorder_menus || raw.venue?.menus
+              || (raw._id ? [raw] : []));
+    }
 
     console.log('[Draughts] Menus found:', menus.length, menus.map(m => m.name || m.title || m._id));
 
@@ -408,9 +454,11 @@ async function fetchMenus() {
       (m.name || m.title || '').toLowerCase().includes('gaming')
     ) || menus[0];
 
-    if (!target) { console.warn('[Draughts] No matching menu found'); return; }
+    if (!target) {
+      console.warn('[Draughts] No matching menu found — check debug output above');
+      return;
+    }
 
-    // Try every plausible field name for the items array
     const items = target.preorder_items
                || target.menu_items
                || target.items
