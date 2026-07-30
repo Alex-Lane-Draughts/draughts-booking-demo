@@ -1,5 +1,5 @@
 // Vercel serverless function — fetches Gaming Admissions pre-order items
-// Tries booking-type-specific menus first, falls back to venue-level.
+// Tries multiple DMN endpoints and returns the full payload for client-side parsing.
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -12,26 +12,71 @@ export default async function handler(req, res) {
   const API_AUTH = '6a6a039157dfd8826153639b:691ccae4707eea11a947ee1b';
 
   const headers = { 'Authorization': API_AUTH };
+  const results = {};
 
+  // Try 1: booking-type details (often includes preorder_menus nested inside)
   try {
-    // Try booking-type-specific menus first
-    const r1 = await fetch(
+    const r = await fetch(
+      `https://api.designmynight.com/v4/venues/${VENUE_ID}/booking-types/${TYPE_ID}`,
+      { headers }
+    );
+    const data = await r.json();
+    results.bookingType = { status: r.status, data };
+    // If this has preorder menus directly, return it
+    const menus = data?.payload?.preorder_menus || data?.payload?.booking_type?.preorder_menus;
+    if (menus && menus.length > 0) {
+      return res.status(200).json({ source: 'bookingType', payload: menus });
+    }
+  } catch (e) {
+    results.bookingType = { error: e.message };
+  }
+
+  // Try 2: booking-type-specific menus endpoint
+  try {
+    const r = await fetch(
       `https://api.designmynight.com/v4/venues/${VENUE_ID}/booking-types/${TYPE_ID}/preorder-menus`,
       { headers }
     );
-    if (r1.ok) {
-      const data = await r1.json();
-      return res.status(200).json(data);
-    }
+    const data = await r.json();
+    results.bookingTypeMenus = { status: r.status, data };
+  } catch (e) {
+    results.bookingTypeMenus = { error: e.message };
+  }
 
-    // Fallback: all venue menus
-    const r2 = await fetch(
+  // Try 3: venue-level preorder menus
+  try {
+    const r = await fetch(
       `https://api.designmynight.com/v4/venues/${VENUE_ID}/preorder-menus`,
       { headers }
     );
-    const data2 = await r2.json();
-    return res.status(r2.status).json(data2);
-  } catch (err) {
-    return res.status(500).json({ error: 'Menus proxy error', detail: err.message });
+    const data = await r.json();
+    results.venueMenus = { status: r.status, data };
+  } catch (e) {
+    results.venueMenus = { error: e.message };
   }
+
+  // Try 4: full venue details (preorder_menus may be embedded)
+  try {
+    const r = await fetch(
+      `https://api.designmynight.com/v4/venues/${VENUE_ID}`,
+      { headers }
+    );
+    const data = await r.json();
+    // Don't return the full venue blob — just extract the relevant bits
+    const venue = data?.payload?.venue || data?.payload;
+    results.venue = {
+      status: r.status,
+      preorder_menus: venue?.preorder_menus,
+      booking_types_summary: (venue?.booking_types || []).map(bt => ({
+        _id: bt._id,
+        name: bt.name,
+        preorder_menus: bt.preorder_menus,
+      })),
+    };
+  } catch (e) {
+    results.venue = { error: e.message };
+  }
+
+  // Return all results so the client can log and we can see the structure
+  return res.status(200).json({ debug: true, results });
 }
