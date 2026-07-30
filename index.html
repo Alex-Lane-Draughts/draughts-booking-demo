@@ -544,15 +544,66 @@ function buildReview() {
 }
 
 // ── SUBMIT ────────────────────────────────────────────────
-// No API booking created here — opens Collins payment directly in the modal.
-// Collins creates the confirmed booking only after the customer completes payment.
-function doSubmit() {
+// Creates the booking via API with pre-orders attached.
+// Collins' next.web URL should then skip the admissions selection and go
+// straight to payment (or at worst show admissions pre-filled).
+// The "enquiry" in Collins is just the pending state — it confirms on payment.
+async function doSubmit() {
   const btn = document.getElementById('submitBtn');
-  btn.disabled = true; btn.textContent = 'Opening payment…';
+  btn.disabled = true; btn.textContent = 'Processing…';
   document.getElementById('submitErr').innerHTML = '';
-  openPayment(buildCollinsUrl());
-  btn.disabled = false;
-  btn.textContent = 'Book Now & Pay';
+
+  // Make sure menus are loaded so we have the pre-order item IDs
+  if (!S.menuItems) await fetchMenus();
+
+  // Build pre-orders array — IDs resolved from /api/menus on page load
+  const preorders = [];
+  if (S.adults > 0 && S.itemIds.adults) preorders.push({ preorder_item: S.itemIds.adults, quantity: S.adults });
+  if (S.teens  > 0 && S.itemIds.teens)  preorders.push({ preorder_item: S.itemIds.teens,  quantity: S.teens  });
+  if (S.kids   > 0 && S.itemIds.kids)   preorders.push({ preorder_item: S.itemIds.kids,   quantity: S.kids   });
+
+  console.log('[Draughts] Submitting with pre-orders:', preorders);
+
+  const body = {
+    source:     'partner',
+    venue_id:   VENUE_ID,
+    type:       TYPE_ID,
+    date:       S.date,
+    time:       S.time,
+    duration:   S.duration,
+    num_people: S.adults + S.teens + S.kids,
+    first_name: S.fn,
+    last_name:  S.ln,
+    email:      S.email,
+    phone:      S.phone,
+    ...(preorders.length ? { preorders } : {}),
+  };
+
+  try {
+    const res  = await fetch('/api/booking', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const json = await res.json();
+
+    if (res.ok && (json.payload?.booking || json.payload?._id)) {
+      const nextUrl = json.payload?.next?.web || buildCollinsUrl();
+      console.log('[Draughts] next.web:', nextUrl);
+      openPayment(nextUrl);
+      return;
+    }
+
+    const errMsg = json.payload?.errors?.map(e => e.message).join(', ')
+                || json.error || JSON.stringify(json.payload || json);
+    throw new Error(errMsg);
+
+  } catch (err) {
+    document.getElementById('submitErr').innerHTML =
+      `<div class="error-box">Booking failed: ${err.message}</div>`;
+    btn.disabled = false;
+    btn.textContent = 'Book Now & Pay';
+  }
 }
 
 // ── PAYMENT OVERLAY ───────────────────────────────────────
