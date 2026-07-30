@@ -341,8 +341,15 @@ const S = {
   date: null, adults: 1, teens: 0, kids: 0,
   time: null, until: null, duration: null,
   fn: '', ln: '', email: '', phone: '',
-  menuItems: null,   // raw API response from /api/menus
-  itemIds: {}        // { adults: 'id...', teens: 'id...', kids: 'id...' }
+  menuItems: null,
+  // Hardcoded — DMN API returns stubs only (no names/prices in list endpoint)
+  // Verify order in Collins: Settings → Pre-order menus → Gaming Admissions
+  // If pre-orders submit wrong amounts, swap adults/teens/kids IDs below
+  itemIds: {
+    adults: '6a69d18ae3c0be402361b83d',  // Adult Family Admission (£9.95)
+    teens:  '6a69d10fe3c0be3d8f49560e',  // Family Admission 13-17 Years (£5.00)
+    kids:   '6a69d15881b36b23d47361b6',  // Kids Free Admission (£0)
+  }
 };
 
 // ── DATE ──────────────────────────────────────────────────
@@ -621,10 +628,7 @@ async function doSubmit() {
   btn.disabled = true; btn.textContent = 'Processing…';
   document.getElementById('submitErr').innerHTML = '';
 
-  // Make sure menus are loaded so we have the pre-order item IDs
-  if (!S.menuItems) await fetchMenus();
-
-  // Build pre-orders array — IDs resolved from /api/menus on page load
+  // Build pre-orders array using hardcoded item IDs
   const preorders = [];
   if (S.adults > 0 && S.itemIds.adults) preorders.push({ preorder_item: S.itemIds.adults, quantity: S.adults });
   if (S.teens  > 0 && S.itemIds.teens)  preorders.push({ preorder_item: S.itemIds.teens,  quantity: S.teens  });
