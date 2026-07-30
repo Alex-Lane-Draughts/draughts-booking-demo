@@ -465,15 +465,26 @@ async function fetchMenus() {
                || target.products
                || [];
 
-    console.log('[Draughts] Items in menu:', items.length, items.map(i => ({ id: i._id || i.id, name: i.name })));
+    // Log full item structure so we can see every field
+    console.log('[Draughts] Full items JSON:', JSON.stringify(items, null, 2));
 
     for (const item of items) {
-      const n  = (item.name || '').toLowerCase();
+      // Try every plausible name field
+      const n  = (item.name || item.title || item.label || item.description ||
+                  item.item_name || item.display_name || item.type || '').toLowerCase();
       const id = item._id || item.id;
+      const price = item.price || item.amount || item.cost || 0;
       if (!id) continue;
+      console.log('[Draughts] Item:', { id, n, price, allKeys: Object.keys(item) });
       if (n.includes('adult'))                                                    S.itemIds.adults = id;
       else if (n.includes('13') || n.includes('teen'))                            S.itemIds.teens  = id;
       else if (n.includes('kid') || n.includes('free') || n.includes('child'))   S.itemIds.kids   = id;
+      // Fallback: match by price if name fields are all empty
+      else if (!n) {
+        if (price === 995 || price === 9.95)       S.itemIds.adults = id;
+        else if (price === 500 || price === 5.00)  S.itemIds.teens  = id;
+        else if (price === 0)                       S.itemIds.kids   = id;
+      }
     }
 
     S.menuItems = items;
