@@ -94,34 +94,53 @@
     .notice { background:var(--mid-blue); border-left:3px solid var(--blue); padding:12px 16px; font-size:12px; color:var(--blue); border-radius:0 4px 4px 0; margin:14px 0; font-family:'Lora',serif; font-style:italic; }
     .error-box { background:#fff0f0; border:1px solid #ffcccc; border-radius:4px; padding:14px 16px; font-size:13px; color:#c0392b; margin-bottom:14px; }
 
-    /* PAYMENT OVERLAY */
+    /* PAYMENT MODAL BACKDROP */
     #paymentOverlay {
       display: none;
       position: fixed;
       inset: 0;
       z-index: 1000;
-      flex-direction: column;
-      background: var(--bg);
+      background: rgba(10,20,40,0.55);
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
     }
     #paymentOverlay.open { display: flex; }
+
+    /* MODAL WINDOW */
+    #paymentModal {
+      width: 100%;
+      max-width: 820px;
+      height: 88vh;
+      max-height: 860px;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.35);
+      animation: modalIn .25s ease both;
+    }
+    @keyframes modalIn { from{opacity:0;transform:translateY(16px) scale(.98)} to{opacity:1;transform:none} }
+
     #paymentHeader {
       background: var(--blue);
-      padding: 16px 24px;
+      padding: 14px 20px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       flex-shrink: 0;
     }
-    #paymentHeader .ph-left { display: flex; align-items: center; gap: 14px; }
+    #paymentHeader .ph-left { display: flex; align-items: center; gap: 12px; }
     #paymentHeader .ph-title { color: white; font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; }
     #paymentHeader .ph-sub { color: var(--light-blue); font-family: 'Lora', serif; font-style: italic; font-size: 12px; margin-top: 2px; }
-    #paymentHeader .ph-lock { color: var(--light-blue); font-size: 18px; }
+    #paymentHeader .ph-lock { color: var(--light-blue); font-size: 16px; }
     #paymentBack {
       background: rgba(255,255,255,0.12);
       border: 1px solid rgba(255,255,255,0.25);
       color: white;
       border-radius: 4px;
-      padding: 8px 16px;
+      padding: 7px 14px;
       font-family: 'Raleway', sans-serif;
       font-size: 10px;
       font-weight: 700;
@@ -129,7 +148,7 @@
       text-transform: uppercase;
       cursor: pointer;
     }
-    #paymentBack:hover { background: rgba(255,255,255,0.2); }
+    #paymentBack:hover { background: rgba(255,255,255,0.22); }
     #paymentFrame {
       flex: 1;
       width: 100%;
@@ -138,12 +157,13 @@
     }
     #paymentLoading {
       position: absolute;
-      inset: 80px 0 0 0;
+      inset: 0;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      background: var(--bg);
+      background: white;
+      border-radius: 0 0 8px 8px;
       pointer-events: none;
       transition: opacity 0.4s;
     }
@@ -289,23 +309,27 @@
   </div>
 </div>
 
-<!-- PAYMENT OVERLAY — Collins payment embedded, never leaves our page -->
+<!-- PAYMENT MODAL — Collins payment embedded in a floating window -->
 <div id="paymentOverlay">
-  <div id="paymentHeader">
-    <div class="ph-left">
-      <span class="ph-lock">🔒</span>
-      <div>
-        <div class="ph-title">Secure Payment</div>
-        <div class="ph-sub">Draughts Stratford · Family Gaming</div>
+  <div id="paymentModal">
+    <div id="paymentHeader">
+      <div class="ph-left">
+        <span class="ph-lock">🔒</span>
+        <div>
+          <div class="ph-title">Secure Payment</div>
+          <div class="ph-sub">Draughts Stratford · Family Gaming</div>
+        </div>
       </div>
+      <button id="paymentBack" onclick="closePayment()">← Back</button>
     </div>
-    <button id="paymentBack" onclick="closePayment()">← Back</button>
+    <div style="position:relative;flex:1;display:flex;flex-direction:column;">
+      <div id="paymentLoading">
+        <div class="spinner"></div>
+        <p style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--blue);margin-top:14px">Loading secure payment…</p>
+      </div>
+      <iframe id="paymentFrame" onload="frameLoaded()"></iframe>
+    </div>
   </div>
-  <div id="paymentLoading">
-    <div class="spinner"></div>
-    <p style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--blue);margin-top:14px">Loading secure payment…</p>
-  </div>
-  <iframe id="paymentFrame" onload="frameLoaded()"></iframe>
 </div>
 
 <script>
@@ -520,66 +544,15 @@ function buildReview() {
 }
 
 // ── SUBMIT ────────────────────────────────────────────────
-async function doSubmit() {
+// No API booking created here — opens Collins payment directly in the modal.
+// Collins creates the confirmed booking only after the customer completes payment.
+function doSubmit() {
   const btn = document.getElementById('submitBtn');
-  btn.disabled = true; btn.textContent = 'Processing…';
+  btn.disabled = true; btn.textContent = 'Opening payment…';
   document.getElementById('submitErr').innerHTML = '';
-
-  // Build pre-orders from the item IDs resolved from the menus API
-  // Including these tells Collins the pre-orders are already done → skip to payment
-  const preorders = [];
-  if (S.adults > 0 && S.itemIds.adults) preorders.push({ preorder_item: S.itemIds.adults, quantity: S.adults });
-  if (S.teens  > 0 && S.itemIds.teens)  preorders.push({ preorder_item: S.itemIds.teens,  quantity: S.teens  });
-  if (S.kids   > 0 && S.itemIds.kids)   preorders.push({ preorder_item: S.itemIds.kids,   quantity: S.kids   });
-
-  const totalGuests = S.adults + S.teens + S.kids;
-
-  const body = {
-    source:     'partner',
-    venue_id:   VENUE_ID,
-    type:       TYPE_ID,
-    date:       S.date,
-    time:       S.time,
-    duration:   S.duration,
-    num_people: totalGuests,
-    first_name: S.fn,
-    last_name:  S.ln,
-    email:      S.email,
-    phone:      S.phone,
-    notes: [
-      S.adults ? `${S.adults}× Adult (£${(S.adults*PRICE.adults).toFixed(2)})` : null,
-      S.teens  ? `${S.teens}× Teen 13–17 (£${(S.teens*PRICE.teens).toFixed(2)})` : null,
-      S.kids   ? `${S.kids}× Under 12 (free)` : null,
-    ].filter(Boolean).join(', '),
-    ...(preorders.length ? { preorders } : {}),
-  };
-
-  try {
-    const res  = await fetch('/api/booking', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
-    const json = await res.json();
-
-    if (res.ok && (json.payload?.booking || json.payload?._id)) {
-      const nextUrl = json.payload?.next?.web || buildCollinsUrl();
-      openPayment(nextUrl);
-      return;
-    }
-
-    // Surface the actual API error
-    const errMsg = json.payload?.errors?.map(e => e.message).join(', ')
-                || json.error
-                || JSON.stringify(json.payload || json);
-    throw new Error(errMsg);
-
-  } catch (err) {
-    document.getElementById('submitErr').innerHTML =
-      `<div class="error-box">Booking failed: ${err.message}</div>`;
-    btn.disabled = false;
-    btn.textContent = 'Book Now & Pay';
-  }
+  openPayment(buildCollinsUrl());
+  btn.disabled = false;
+  btn.textContent = 'Book Now & Pay';
 }
 
 // ── PAYMENT OVERLAY ───────────────────────────────────────
@@ -611,14 +584,22 @@ function closePayment() {
   btn.textContent = 'Book Now & Pay';
 }
 
-// Fallback if API call fails entirely
 function buildCollinsUrl() {
-  return `https://bookings.designmynight.com/book?widget_version=2`
+  let url = `https://bookings.designmynight.com/book?widget_version=2`
     + `&venue_id=${VENUE_ID}&type=${TYPE_ID}`
     + `&num_people=${S.adults+S.teens+S.kids}`
     + `&date=${S.date}&time=${encodeURIComponent(S.time)}&duration=${S.duration}`
     + `&first_name=${encodeURIComponent(S.fn)}&last_name=${encodeURIComponent(S.ln)}`
     + `&email=${encodeURIComponent(S.email)}&phone=${encodeURIComponent(S.phone)}`;
+
+  // Attempt to pre-fill Gaming Admissions quantities.
+  // Collins may respect these params to pre-select items on the pre-order page.
+  // If item IDs weren't resolved from /api/menus these params are simply ignored.
+  if (S.itemIds.adults && S.adults > 0) url += `&preorder[${S.itemIds.adults}]=${S.adults}`;
+  if (S.itemIds.teens  && S.teens  > 0) url += `&preorder[${S.itemIds.teens}]=${S.teens}`;
+  if (S.itemIds.kids   && S.kids   > 0) url += `&preorder[${S.itemIds.kids}]=${S.kids}`;
+
+  return url;
 }
 </script>
 </body>
