@@ -327,7 +327,7 @@
         <div class="spinner"></div>
         <p style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--blue);margin-top:14px">Loading secure payment…</p>
       </div>
-      <iframe id="paymentFrame" onload="frameLoaded()"></iframe>
+      <iframe id="paymentFrame"></iframe>
     </div>
   </div>
 </div>
@@ -393,30 +393,39 @@ async function fetchMenus() {
   try {
     const res  = await fetch('/api/menus');
     const json = await res.json();
-    if (!res.ok) return;
+    if (!res.ok) { console.warn('[Draughts] Menus API error:', json); return; }
 
-    // Flatten all menus + items into one list
-    const raw  = json.payload || json;
+    // Log the full raw response so we can see the exact structure
+    console.log('[Draughts] Raw menus response:', JSON.stringify(json, null, 2));
+
+    const raw   = json.payload || json;
     const menus = Array.isArray(raw) ? raw
-                : (raw.menus || raw.preorder_menus || [raw]);
+                : (raw.menus || raw.preorder_menus || (raw._id ? [raw] : []));
 
-    // Find the Gaming Admissions menu (or take the first one)
+    console.log('[Draughts] Menus found:', menus.length, menus.map(m => m.name || m.title || m._id));
+
     const target = menus.find(m =>
       (m.name || m.title || '').toLowerCase().includes('gaming')
     ) || menus[0];
 
-    if (!target) return;
+    if (!target) { console.warn('[Draughts] No matching menu found'); return; }
 
-    const items = target.preorder_items || target.items || [];
+    // Try every plausible field name for the items array
+    const items = target.preorder_items
+               || target.menu_items
+               || target.items
+               || target.products
+               || [];
 
-    // Match items to our three age groups by name
+    console.log('[Draughts] Items in menu:', items.length, items.map(i => ({ id: i._id || i.id, name: i.name })));
+
     for (const item of items) {
-      const n = (item.name || '').toLowerCase();
+      const n  = (item.name || '').toLowerCase();
       const id = item._id || item.id;
       if (!id) continue;
-      if (n.includes('adult'))                               S.itemIds.adults = id;
-      else if (n.includes('13') || n.includes('teen'))       S.itemIds.teens  = id;
-      else if (n.includes('kid') || n.includes('free') || n.includes('child')) S.itemIds.kids = id;
+      if (n.includes('adult'))                                                    S.itemIds.adults = id;
+      else if (n.includes('13') || n.includes('teen'))                            S.itemIds.teens  = id;
+      else if (n.includes('kid') || n.includes('free') || n.includes('child'))   S.itemIds.kids   = id;
     }
 
     S.menuItems = items;
@@ -612,15 +621,11 @@ function openPayment(url) {
   const frame   = document.getElementById('paymentFrame');
   const loading = document.getElementById('paymentLoading');
   loading.classList.remove('hidden');
+  // Attach onload via JS (not inline attribute) to avoid scope issues
+  frame.onload = () => loading.classList.add('hidden');
   frame.src = url;
   overlay.classList.add('open');
   document.body.style.overflow = 'hidden';
-}
-
-function frameLoaded() {
-  // Hide the loading spinner once the iframe has something to show
-  const loading = document.getElementById('paymentLoading');
-  loading.classList.add('hidden');
 }
 
 function closePayment() {
